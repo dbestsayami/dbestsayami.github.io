@@ -16,6 +16,10 @@
   --bg:#EDF0F3; --surface:#FFFFFF; --fg:#14212C; --muted:#5B6B79; --line:#D3DAE1;
   --accent:#C8102E; --accent-fg:#FFFFFF; --soft:#E3E8ED;
   --flag-blue:#1E4FA3; --flag-white:#C9D2DA; --flag-red:#D7263D; --flag-green:#2E8B57; --flag-yellow:#E0A800;
+  --panel:rgba(255,255,255,.9);
+  --sky-top:#7EC3EC; --sky-bot:#EAF6FC; --orb:#FFD54A; --cloud:#FFFFFF; --mtn:#9DB7D3; --snow:#FFFFFF;
+  --hill:#7FBF7A; --leaf:#4FA262; --play:#E2C48D; --road:#4C5663; --lane:#F5F5F5; --dim:0;
+  --sh:clamp(240px,40vh,460px);
   --font-display:'Bricolage Grotesque','Mukta',system-ui,sans-serif;
   --font-body:'Mukta',system-ui,-apple-system,'Segoe UI',sans-serif;
   color-scheme:light;
@@ -25,14 +29,18 @@
     --bg:#0C141C; --surface:#142130; --fg:#E7ECF1; --muted:#93A3B2; --line:#243546;
     --accent:#FF6B5E; --accent-fg:#1A0907; --soft:#1B2C3D;
     --flag-blue:#4C86E0; --flag-white:#DDE5EC; --flag-red:#F0485B; --flag-green:#4DBB82; --flag-yellow:#F5C432;
+    --panel:rgba(20,33,48,.9);
+    --sky-top:#0A1626; --sky-bot:#1F3A57; --orb:#E8EEF5; --cloud:#34506F; --mtn:#3C5675; --snow:#AFC3DA;
+    --hill:#2C5B45; --leaf:#1F5A3C; --play:#6E5B45; --road:#222A33; --lane:#A9B2BC; --dim:.3;
     color-scheme:dark;
   }
 }
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:17px;line-height:1.5;
-  padding-inline:max(16px,env(safe-area-inset-left));padding-block:24px 56px}
-.wrap{max-width:920px;margin-inline:auto;display:grid;gap:28px}
+body{background-color:var(--bg);background-image:linear-gradient(to bottom,var(--sky-top),var(--sky-bot) 75%);background-attachment:fixed;
+  color:var(--fg);font-family:var(--font-body);font-size:17px;line-height:1.5;
+  padding-inline:max(16px,env(safe-area-inset-left));padding-block:24px calc(var(--sh) + 12px)}
+.wrap{position:relative;z-index:1;max-width:920px;margin-inline:auto;display:grid;gap:28px}
 button,input,textarea{font:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 [hidden]{display:none!important}
@@ -41,12 +49,12 @@ header{display:grid;gap:10px}
 .flags{width:150px;height:34px;display:block}
 .flags line{stroke:var(--muted);stroke-width:1.5}
 h1{font-family:var(--font-display);font-weight:800;font-size:clamp(2.2rem,7vw,3.6rem);line-height:1;margin:0;letter-spacing:-0.02em;text-wrap:balance}
-.dev{font-size:1.05rem;color:var(--muted);margin:0;letter-spacing:.02em}
+.dev{font-size:1.05rem;color:var(--fg);margin:0;letter-spacing:.02em}
 
 main{display:grid;gap:28px;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);align-items:start}
 @media (max-width:760px){main{grid-template-columns:minmax(0,1fr)}}
 
-.deck{display:grid;gap:18px}
+.deck{display:grid;gap:18px;padding:18px;border-radius:14px;background:var(--panel)}
 .screen{position:relative;aspect-ratio:16/9;max-width:100%;background:var(--soft);border-radius:12px;overflow:hidden;border:1px solid var(--line)}
 .screen iframe,.screen #yt{position:absolute;inset:0;width:100%;height:100%;border:0}
 .empty{position:absolute;inset:0;display:grid;place-content:center;gap:6px;text-align:center;padding:20px;color:var(--muted)}
@@ -89,6 +97,8 @@ ol{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .item .a{display:block;font-size:.85rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .none{margin:0;padding:18px;border:1.5px dashed var(--line);border-radius:10px;color:var(--muted)}
 
+.queue{padding:18px;border-radius:14px;background:var(--panel)}
+
 /* admin */
 .admin{display:grid;gap:16px;padding:20px;border-radius:14px;background:var(--surface);border:1.5px solid var(--accent)}
 .admin h2{margin:0}
@@ -112,7 +122,10 @@ ol{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .actions{display:flex;gap:10px;flex-wrap:wrap}
 .steps{margin:0;padding-left:1.2em;color:var(--muted);font-size:.95rem;display:block;list-style:decimal}
 .steps li{margin:2px 0}
-footer{font-size:.85rem;color:var(--muted);max-width:60ch}
+footer{font-size:.85rem;color:var(--fg);max-width:60ch;padding:10px 14px;border-radius:10px;background:var(--panel)}
+.scene{position:fixed;left:0;right:0;bottom:0;height:var(--sh);pointer-events:none;z-index:0}
+.scene svg{display:block;width:100%;height:100%}
+.mtn{fill:var(--mtn)} .snow{fill:var(--snow)}
 @media (prefers-reduced-motion: no-preference){.icon,.btn{transition:filter .15s,border-color .15s}}
 </style>
 </head>
@@ -195,9 +208,105 @@ footer{font-size:.85rem;color:var(--muted);max-width:60ch}
   <footer>Audio plays through YouTube's own embedded player, so the video frame stays visible.</footer>
 </div>
 
+<div class="scene" aria-hidden="true">
+<svg viewBox="0 0 800 400" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <g id="pk">
+      <path class="mtn" d="M0 230 L90 190 L150 240 L260 130 L360 250 L450 200 L560 270 L660 160 L760 250 L800 230 L800 345 L0 345Z"/>
+      <path class="snow" d="M260 130 L220 170 L240 163 L258 178 L276 164 L293 170Z"/>
+      <path class="snow" d="M660 160 L628 195 L646 188 L662 203 L680 189 L699 195Z"/>
+      <path class="snow" d="M90 190 L62 208 L78 203 L92 216 L106 205 L118 214Z"/>
+      <path class="snow" d="M450 200 L410 222 L435 216 L452 228 L470 217 L485 222Z"/>
+    </g>
+  </defs>
+  <circle cx="650" cy="62" r="30" fill="var(--orb)"/>
+  <g fill="var(--cloud)" opacity=".9">
+    <ellipse cx="150" cy="72" rx="46" ry="12"/><ellipse cx="182" cy="62" rx="30" ry="12"/><ellipse cx="124" cy="64" rx="24" ry="9"/>
+    <ellipse cx="480" cy="44" rx="40" ry="10"/><ellipse cx="506" cy="36" rx="24" ry="9"/>
+  </g>
+  <use href="#pk" x="-1600"/><use href="#pk" x="-800"/><use href="#pk" x="0"/><use href="#pk" x="800"/><use href="#pk" x="1600"/>
+  <path fill="var(--hill)" d="M-1700 335 Q-1300 300 -900 335 T-100 332 T700 334 T1500 330 T2400 335 L2400 400 L-1700 400Z"/>
+  <!-- tree -->
+  <rect x="636" y="296" width="9" height="56" fill="#7A4B2A"/>
+  <g fill="var(--leaf)"><circle cx="640" cy="282" r="26"/><circle cx="618" cy="302" r="20"/><circle cx="664" cy="302" r="20"/></g>
+  <!-- road, curb, playground -->
+  <rect x="-1700" y="352" width="2140" height="48" fill="var(--road)"/>
+  <line x1="-1700" y1="378" x2="430" y2="378" stroke="var(--lane)" stroke-width="3" stroke-dasharray="22 16"/>
+  <rect x="436" y="350" width="8" height="50" fill="#9AA3AD"/>
+  <rect x="444" y="346" width="2000" height="54" fill="var(--play)"/>
+  <!-- school bus -->
+  <g>
+    <rect x="40" y="285" width="330" height="85" rx="14" fill="#F4B400"/>
+    <path d="M370 330 L404 338 Q418 340 418 352 L418 370 L370 370Z" fill="#F4B400"/>
+    <rect x="40" y="346" width="378" height="5" fill="#2B2B2B"/>
+    <g fill="#A9D8EE">
+      <rect x="56" y="300" width="42" height="30" rx="4"/><rect x="108" y="300" width="42" height="30" rx="4"/>
+      <rect x="160" y="300" width="42" height="30" rx="4"/><rect x="212" y="300" width="42" height="30" rx="4"/>
+      <rect x="264" y="300" width="42" height="30" rx="4"/>
+      <rect x="318" y="300" width="28" height="68" rx="4"/><rect x="352" y="300" width="20" height="30" rx="4"/>
+    </g>
+    <!-- kids at the windows -->
+    <circle cx="129" cy="324" r="9" fill="#E0AC7E"/><path d="M120 323 A9 9 0 0 1 138 323 Q129 318 120 323Z" fill="#1b1410"/>
+    <circle cx="233" cy="324" r="9" fill="#C98E5F"/><path d="M224 323 A9 9 0 0 1 242 323 Q233 318 224 323Z" fill="#1b1410"/>
+    <circle cx="285" cy="324" r="9" fill="#A9703F"/><path d="M276 323 A9 9 0 0 1 294 323 Q285 318 276 323Z" fill="#1b1410"/>
+    <text x="148" y="366" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="13" letter-spacing="1.5" fill="#2B2B2B">SCHOOL BUS</text>
+    <circle cx="412" cy="352" r="4" fill="#FFF3B0"/>
+    <circle cx="110" cy="372" r="27" fill="#2A2A2A"/><circle cx="110" cy="372" r="21" fill="#111"/><circle cx="110" cy="372" r="9" fill="#8A8F96"/>
+    <circle cx="330" cy="372" r="27" fill="#2A2A2A"/><circle cx="330" cy="372" r="21" fill="#111"/><circle cx="330" cy="372" r="9" fill="#8A8F96"/>
+  </g>
+  <!-- kids playing -->
+  <path d="M514 341 Q545 392 576 341" fill="none" stroke="#C8102E" stroke-width="2.2" stroke-linecap="round"/>
+  <g id="kids"></g>
+  <circle cx="704" cy="375" r="8.5" fill="#fff" stroke="#222" stroke-width="1.2"/>
+  <path d="M704 370 L708.5 373.5 L706.8 378.8 L701.2 378.8 L699.5 373.5Z" fill="#222"/>
+  <rect x="-2000" y="0" width="5000" height="400" fill="#0A1626" style="opacity:var(--dim)"/>
+</svg>
+</div>
+
 <script>
 (function(){
   var $ = function(id){return document.getElementById(id)};
+  /* school kids in the background scene */
+  (function(){
+    var P = function(a, L, sx, sy){ var r = a * Math.PI / 180; return [sx + L * Math.sin(r), sy + L * Math.cos(r)]; };
+    function kid(o){
+      var navy = '#1E2F57', shirt = '#CFE3F7', edge = '#6C8FB8', hair = '#1b1410', s = '';
+      s += '<ellipse cx="' + o.x + '" cy="386" rx="15" ry="3" fill="#000" opacity=".16"/>';
+      s += '<g transform="translate(' + o.x + ' ' + o.y + ')">';
+      if (o.bag) s += '<rect x="-10.5" y="-52" width="21" height="22" rx="5" fill="#C8102E"/>';
+      [[o.lL, -3], [o.lR, 3]].forEach(function(l){
+        var f = P(l[0], 30, l[1], -30);
+        s += '<line x1="' + l[1] + '" y1="-30" x2="' + f[0].toFixed(1) + '" y2="' + f[1].toFixed(1) + '" stroke="' + (o.girl ? o.skin : navy) + '" stroke-width="' + (o.girl ? 4 : 6) + '" stroke-linecap="round"/>';
+        s += '<ellipse cx="' + (f[0] + 2).toFixed(1) + '" cy="' + (f[1] + 1).toFixed(1) + '" rx="5.5" ry="2.8" fill="#16181d"/>';
+      });
+      s += o.girl ? '<path d="M-8 -34 L8 -34 L13 -19 L-13 -19Z" fill="' + navy + '"/>' : '<rect x="-8" y="-36" width="16" height="9" rx="3" fill="' + navy + '"/>';
+      s += '<path d="M-8.5 -53 Q0 -56 8.5 -53 L7.5 -33 L-7.5 -33Z" fill="' + shirt + '" stroke="' + edge + '" stroke-width=".8"/>';
+      s += '<path d="M-2 -53 L2 -53 L1.6 -43 L0 -40 L-1.6 -43Z" fill="#C8102E"/>';
+      [[o.aL, -7], [o.aR, 7]].forEach(function(a){
+        var h = P(a[0], 22, a[1], -50);
+        s += '<line x1="' + a[1] + '" y1="-50" x2="' + h[0].toFixed(1) + '" y2="' + h[1].toFixed(1) + '" stroke="' + edge + '" stroke-width="6" stroke-linecap="round"/>';
+        s += '<line x1="' + a[1] + '" y1="-50" x2="' + h[0].toFixed(1) + '" y2="' + h[1].toFixed(1) + '" stroke="' + shirt + '" stroke-width="4.4" stroke-linecap="round"/>';
+        s += '<circle cx="' + h[0].toFixed(1) + '" cy="' + h[1].toFixed(1) + '" r="2.8" fill="' + o.skin + '"/>';
+      });
+      if (o.girl) s += '<circle cx="-10" cy="-58" r="3.4" fill="' + hair + '"/><circle cx="10" cy="-58" r="3.4" fill="' + hair + '"/>';
+      s += '<circle cx="0" cy="-62" r="8.5" fill="' + o.skin + '"/>';
+      s += '<path d="M-8.7 -63 A8.7 8.7 0 0 1 8.7 -63 Q0 -69 -8.7 -63Z" fill="' + hair + '"/>';
+      s += '<circle cx="-3" cy="-61" r="1" fill="#222"/><circle cx="3" cy="-61" r="1" fill="#222"/>';
+      s += '<path d="M-2.6 -57.6 Q0 -55.2 2.6 -57.6" fill="none" stroke="#222" stroke-width=".9" stroke-linecap="round"/>';
+      return s + '</g>';
+    }
+    var kids = [
+      {x:458, y:384, girl:0, skin:'#E0AC7E', bag:1, aL:-150, aR:12,  lL:-4,  lR:4},   /* waving at the bus */
+      {x:486, y:384, girl:1, skin:'#C98E5F', bag:1, aL:-15,  aR:72,  lL:-4,  lR:5},   /* rope holder */
+      {x:604, y:384, girl:1, skin:'#E0AC7E', bag:0, aL:-72,  aR:15,  lL:-4,  lR:5},   /* rope holder */
+      {x:545, y:352, girl:1, skin:'#A9703F', bag:0, aL:-145, aR:145, lL:-14, lR:14},  /* jumping */
+      {x:668, y:384, girl:0, skin:'#D9A06F', bag:0, aL:-55,  aR:40,  lL:-8,  lR:58},  /* kicking the ball */
+      {x:752, y:384, girl:0, skin:'#C98E5F', bag:1, aL:-55,  aR:62,  lL:45,  lR:-12}  /* running */
+    ];
+    var g = document.getElementById('kids');
+    if (g) g.innerHTML = kids.map(kid).join('');
+  })();
+
   var ADMIN = location.hash === '#admin';
   var DRAFT = 'nepali-millennial-draft';
   var queue = [], idx = -1, player = null, ready = false, pending = null, playing = false, timer = null, scrubbing = false;
